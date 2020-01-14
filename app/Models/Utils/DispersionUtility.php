@@ -7,10 +7,10 @@ namespace app\Models\Utils;
 class DispersionUtility
 {
     /** @var int */
-    private $dirs = 3;
+    private static $dirs = 3;
 
     /** @var int */
-    private $charsPerDir = 1;
+    private static $charsPerDir = 1;
 
     /**
      * DispersionUtility constructor.
@@ -19,15 +19,15 @@ class DispersionUtility
      */
     public function __construct(int $dirs = 3, int $charsPerDir = 1)
     {
-        $this->dirs = $dirs;
-        $this->charsPerDir = $charsPerDir;
+        self::$dirs = $dirs;
+        self::$charsPerDir = $charsPerDir;
     }
 
     /**
      * @param string $fileName
      * @return string|null
      */
-    public function makeDispersion(string $fileName): ?string
+    public static function makeDispersion(string $fileName): ?string
     {
         if (!$fileName) {
             return null;
@@ -35,8 +35,8 @@ class DispersionUtility
 
         $parts = [];
 
-        for ($i = 0, $position = 0; $i < $this->dirs; $i++, $position += $this->charsPerDir) {
-            $parts[] = \substr($fileName, $position, $this->charsPerDir);
+        for ($i = 0, $position = 0; $i < self::$dirs; $i++, $position += self::$charsPerDir) {
+            $parts[] = \substr($fileName, $position, self::$charsPerDir);
         }
 
         return \implode('/', $parts);
