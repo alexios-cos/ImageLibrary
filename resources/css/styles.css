@@ -28,13 +28,24 @@ a:hover {
 }
 
 input {
-    height: 30px;
+    padding: 3px 6px 3px 6px;
+    height: 20px;
     border: 1px lightgrey solid;
     border-radius: 5px;
 }
 
+.submit:hover {
+    background-color: steelblue;
+    color: #ffffff;
+}
+
 .interactive {
     cursor: pointer;
+}
+
+.header {
+    font-size: 18px;
+    font-weight: bold;
 }
 
 #content-container {
@@ -48,21 +59,22 @@ input {
 
 #content {
     width: 95%;
-    height: 150px;
+    height: 100%;
     display: flex;
     justify-content: center;
+    flex-direction: column;
 }
 
 #upload-container {
     width: 100%;
-    height: 100%;
+    height: 150px;
     display: flex;
     justify-content: center;
 }
 
 #upload {
     width: 100%;
-    height: 150px;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -79,6 +91,11 @@ input {
     box-sizing: border-box;
 }
 
+#upload-button {
+    width: 80px;
+    height: 30px;
+}
+
 .upload-element {
     width: 100%;
     height: 40px;
@@ -88,8 +105,102 @@ input {
     margin: 3px 0 3px 0;
 }
 
-.header {
-    font-size: 18px;
-    font-weight: bold;
+#list-container {
+    width: 100%;
+    height: calc(100% - 150px);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#filters {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.filter {
+    margin: 0 10px 0 10px;
+}
+
+#apply-filter {
+    height: 30px;
+}
+
+#list {
+    width: 100%;
+    height: calc(100% - 130px);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.preview-row {
+    width: 95%;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.preview-box {
+    width: 120px;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#pages-container {
+    width: 90%;
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px lightgray solid;
+    box-sizing: border-box;
+    margin-top: 15px;
+}
+
+#pages {
+    width: 100%;
+    height: 65px;
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    flex-direction: row;
+}
+
+.page {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px lightgray solid;
+    border-radius: 5px;
+    margin: 0 5px 0 5px;
+}
+
+.page:hover {
+    background: steelblue;
+    color: #ffffff;
+}
+
+#per-pager {
+    width: 100%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#per-pager span {
+    margin-right: 10px;
 }
 

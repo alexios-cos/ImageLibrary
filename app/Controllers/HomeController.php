@@ -13,7 +13,7 @@ class HomeController extends Controller
      */
     public function process($params)
     {
-        $viewModel = new HomeView();
+        $viewModel = new HomeView($params['offset'], $params['limit']);
         $viewModel->renderView();
     }
 }

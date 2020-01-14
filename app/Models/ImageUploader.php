@@ -78,7 +78,7 @@ class ImageUploader
 
         try {
             $status = $this->storeImageInfo(
-                $origFileName . '.' . $fileExtension, $imagePath, $previewPath, $imageResolution, (string)$imageSize
+                $origFileName, $imagePath, $previewPath, $imageResolution, (string)$imageSize
             );
         } catch (\Exception $exception) {
             // logging exceptions
@@ -107,7 +107,6 @@ class ImageUploader
         string $imageSize
     ) {
         $date = new \DateTime('now');
-
         $attrs = [
             'image_path' => $imagePath,
             'preview_path' => $previewPath,

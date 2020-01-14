@@ -100,6 +100,18 @@ class DatabaseUtility
     }
 
     /**
+     * @param $query
+     * @param array $params
+     * @return int
+     */
+    public static function count($query, $params = []): int
+    {
+        $result = self::$connection->prepare($query);
+        $result->execute($params);
+        return $result->rowCount();
+    }
+
+    /**
      * @return int
      */
     public static function getLastInsertedId(): int

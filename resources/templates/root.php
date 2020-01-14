@@ -15,8 +15,10 @@
         $this->renderView('root-content');
         ?>
     </div>
-    <script src="resources/js/jquery/jquery-3.4.1.js"></script>
-    <script src="resources/js/scripts.js"></script>
+    <script src="resources/js/jQuery/jQuery-3.4.1.js"></script>
+    <script src="resources/js/EventsHandler.js"></script>
+    <script src="resources/js/Validator.js"></script>
+    <script src="resources/js/Messager.js"></script>
 </body>
 
 </html>
