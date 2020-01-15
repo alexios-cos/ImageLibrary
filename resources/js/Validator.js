@@ -1,5 +1,3 @@
-let url = window.URL || window.webkitURL;
-
 Validator = new class {
     /**
      * @private
@@ -25,6 +23,9 @@ Validator = new class {
      */
     maxHeight;
 
+    /**
+     * Validator constructor.
+     */
     constructor() {
         this.maxSize = 5242880;
         this.extensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp'];
@@ -35,18 +36,12 @@ Validator = new class {
     /**
      * @public
      * @param {Object} file
+     * @param {number} imageWidth
+     * @param {number} imageHeight
+     * @return {boolean}
      */
-    validate(file) {
+    validateImage(file, imageWidth, imageHeight) {
         let isValid = true;
-
-        let imageWidth, imageHeight;
-        let image = new Image();
-        image.src = url.createObjectURL(file);
-
-        image.onload = function () {
-            imageWidth = this.width;
-            imageHeight = this.height;
-        };
 
         if (imageWidth > this.maxWidth || imageHeight > this.maxHeight) {
             isValid = false;
@@ -63,5 +58,39 @@ Validator = new class {
         }
 
         return isValid;
+    }
+
+    /**
+     * @public
+     * @param {Object} filters
+     * @return boolean
+     */
+    validateResolutions(filters) {
+        let minWidth = filters.widthRange.minWidth.value;
+        let minHeight = filters.heightRange.minHeight.value;
+        let maxWidth = filters.widthRange.maxWidth.value;
+        let maxHeight = filters.heightRange.maxHeight.value;
+
+        if ( minWidth && minHeight ) {
+            if (!maxWidth || !maxHeight) {
+                Notifier.flashMessage('Please set max resolution.', 'warning');
+                return false;
+            }
+        } else {
+            Notifier.flashMessage('Please set min resolution properly.', 'warning');
+            return false;
+        }
+
+        if ( maxWidth && maxHeight ) {
+            if (!minWidth || !minHeight) {
+                Notifier.flashMessage('Please set min resolution.', 'warning');
+                return false;
+            }
+        } else {
+            Notifier.flashMessage('Please set max resolution properly.', 'warning');
+            return false;
+        }
+
+        return true;
     }
 };

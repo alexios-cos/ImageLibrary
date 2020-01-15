@@ -9,61 +9,130 @@ use app\Models\Utils\DatabaseUtility;
 class ImageProvider
 {
     /**
-     * @param int $offset
-     * @param int $limit
-     * @return array
+     * @param string $page
+     * @param string $perPage
+     * @param array $filters
+     * @return array|null
      */
-    public function getCollection(int $offset, int $limit): array
+    public function getCollection(string $page, string $perPage, array $filters): ?array
     {
-        $images = DatabaseUtility::queryAllAssoc("
-            SELECT * FROM image LIMIT $limit OFFSET $offset
-        ");
+        $filterCount = \count($filters);
+        $attrsCount = $this->getAttrsCount();
+        $offset = ($page - 1) * $perPage * $attrsCount;
+        $limit = $perPage * $attrsCount;
+        $where = '';
+        $values = [];
 
-        if (empty($images)) {
+        if (!empty($filters)) {
+            $constraints = [];
+            foreach ($filters as $name => $features) {
+                if (\preg_match('/[a-z]+Range$/u', $name)) {
+                    $attrName = $min = $max = null;
+                    foreach ($features as $alias => $feature) {
+                        $attrName = $feature['name'];
+                        if (\preg_match('/^min[a-zA-z]+/u', $alias)) {
+                            $min = $feature['value'];
+                        } elseif (\preg_match('/^max[a-zA-z]+/u', $alias)) {
+                            $max = $feature['value'];
+                        }
+                    }
+                    $constraints[] = "(attr = '$attrName' AND val >= ? AND val <= ?)";
+                    \array_push($values, $min, $max);
+                } else {
+                    $constraints[] = "(attr = '{$features['name']}' AND val {$features['operator']} ?)";
+                    $values[] = $features['value'];
+                }
+            }
+            $where = 'WHERE ' . \implode(' OR ', $constraints);
+        }
+
+        $attributes = DatabaseUtility::queryAllAssoc("
+            SELECT * FROM attribute a
+            JOIN image i on a.image_id = i.id
+            $where
+            LIMIT $limit OFFSET $offset
+        ", $values);
+
+        if (empty($attributes)) {
             return null;
         }
 
-        $ids = [];
+        $totalAttributes = DatabaseUtility::queryAllAssoc("
+            SELECT * FROM attribute a
+            LEFT JOIN image i on a.image_id = i.id
+            $where
+        ", $values);
 
-        foreach ($images as $image) {
-            $ids[] = $image['id'];
-        }
+        $attributesCollection = $this->makeCollection($attributes);
+        $totalAttributesCollection = $this->makeCollection($totalAttributes);
 
-        $in = \join(', ', \array_fill(0, \count($ids), '?'));
-        $attributes = DatabaseUtility::queryAllAssoc("
-            SELECT * FROM attribute 
-            WHERE image_id IN ($in)
-            ", $ids
-        );
-
-        foreach ($images as &$image) {
-            foreach ($attributes as $attribute) {
-                if ($image['id'] === $attribute['image_id']) {
-                    $image[$attribute['attr']] = $attribute['val'];
-                    if (8 === \count($image)) {
-                        continue 2;
-                    }
-                }
-            }
+        if (!empty($filters)) {
+            $images = $this->getFilteredCollection($attributesCollection, $filterCount);
+            $images['count'] = \count($this->getFilteredCollection($totalAttributesCollection, $filterCount));
+        } else {
+            $images = $attributesCollection;
+            $images['count'] = \count($totalAttributesCollection);
         }
 
         return $images;
     }
 
     /**
-     * @param int $limit
      * @return int
      */
-    public function getImagePages(int $limit): int
+    private function getAttrsCount(): int
     {
-        return (int)\ceil($this->getImagesCount() / $limit);
+        return DatabaseUtility::count('
+            SELECT attr FROM attribute WHERE EXISTS (SELECT * FROM image) GROUP BY attr
+        ');
     }
 
     /**
-     * @return int
+     * @param array $attributes
+     * @return array
      */
-    private function getImagesCount(): int
+    private function makeCollection(array $attributes): array
     {
-        return DatabaseUtility::count('SELECT * FROM image');
+        $attributesCollection = [];
+        foreach ($attributes as $attribute) {
+            $attributesCollection[$attribute['image_id']]['image_id'] = $attribute['image_id'];
+            $attributesCollection[$attribute['image_id']]['name'] = $attribute['name'];
+            $attributesCollection[$attribute['image_id']][$attribute['attr']] = $attribute['val'];
+        }
+        return $attributesCollection;
+    }
+
+    /**
+     * @param array $attributesCollection
+     * @param int $filterCount
+     * @return array|null
+     */
+    private function getFilteredCollection(array $attributesCollection, int $filterCount): ?array
+    {
+        $ids = [];
+
+        foreach ($attributesCollection as $id => $imageAttrs) {
+            if (\count($imageAttrs) - 2 < $filterCount) {
+                unset($attributesCollection[$id]);
+                continue;
+            }
+
+            if (!\in_array($id, $ids)) {
+                $ids[] = $id;
+            }
+        }
+
+        if (empty($ids)) {
+            return null;
+        }
+
+        $in = \join(', ', \array_fill(0, \count($ids), '?'));
+        $imagesAttributes = DatabaseUtility::queryAllAssoc("
+            SELECT * FROM image i
+            RIGHT JOIN attribute a on i.id = a.image_id
+            WHERE id IN ($in)
+        ", $ids);
+
+        return $this->makeCollection($imagesAttributes);
     }
 }

@@ -23,73 +23,186 @@ class HomeView extends ViewModel
     /** @var ImageProvider */
     private $imageProvider;
 
-    /** @var array */
+    /** @var array|null */
     private $imageCollection = [];
 
-    /** @var int */
-    private $imagePages;
+    /** @var int|null */
+    private $totalPages;
+
+    /** @var array|null */
+    private $visiblePages = [];
 
     /** @var int */
-    private $offset = 0;
+    private $currentPage = 1;
 
     /** @var int */
-    private $limit = 50;
+    private $currentPerPage = 20;
+
+    /** @var array */
+    private $perPageSet = [20, 50, 100, 200];
+
+    /** @var string */
+    private $currentSizeOperator = '=';
+
+    /** @var string */
+    private $currentViewsOperator = '=';
+
+    /** @var array */
+    private $operatorSet = [
+        '=',
+//        '>',
+//        '<'
+    ];
+
+    /** @var array */
+    private $filters = [];
 
     /**
      * HomeView constructor.
-     * @param int|null $offset
-     * @param int|null $limit
+     * @param int $page
+     * @param int $currentPerPage
+     * @param int|null $newPerPage
+     * @param array|null $filters
      */
-    public function __construct(?int $offset, ?int $limit)
+    public function __construct(?int $page, ?int $currentPerPage, ?int $newPerPage, ?array $filters)
     {
-        if ($offset) {
-            $this->offset = $offset;
+        if ($page) {
+            $this->currentPage = $page;
         }
 
-        if ($limit) {
-            $this->limit = $limit;
+        if ($currentPerPage) {
+            $this->currentPerPage = $currentPerPage;
+        }
+
+        if ($newPerPage) {
+            if ($this->currentPerPage !== $newPerPage) {
+                $this->currentPage = 1;
+            }
+            $this->currentPerPage = $newPerPage;
+        }
+
+        if ($filters) {
+            $this->filters = $filters;
         }
 
         $this->imageProvider = new ImageProvider();
+        $this->imageCollection = $this->imageProvider->getCollection(
+            (string)$this->currentPage, (string)$this->currentPerPage, $this->filters
+        );
+        $this->totalPages = (int)\ceil($this->imageCollection['count'] / $this->currentPerPage);
+        unset($this->imageCollection['count']);
     }
 
     /**
-     * @return array
+     * @return void
      */
-    public function getImageCollection(): array
+    public function ajaxSendView(): void
     {
-        if (!$this->imageCollection) {
-            $this->loadImageCollection();
-        }
+        include('resources/templates/home.php');
+    }
 
+    /**
+     * @return array|null
+     */
+    public function getImageCollection(): ?array
+    {
         return $this->imageCollection;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getTotalPages(): ?int
+    {
+        return $this->totalPages;
     }
 
     /**
      * @return int
      */
-    public function getImagePages(): int
+    public function getCurrentPage(): int
     {
-        if (!$this->imagePages) {
-            $this->loadImagePages();
+        return $this->currentPage;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCurrentPerPage(): int
+    {
+        return $this->currentPerPage;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPerPageSet(): array
+    {
+        return $this->perPageSet;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getVisiblePages(): ?array
+    {
+        if (empty($this->visiblePages)) {
+            $this->loadVisiblePages();
         }
 
-        return $this->imagePages;
+        return $this->visiblePages;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentSizeOperator(): string
+    {
+        return $this->currentSizeOperator;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrentViewsOperator(): string
+    {
+        return $this->currentViewsOperator;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOperatorSet(): array
+    {
+        return $this->operatorSet;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilters(): array
+    {
+        return $this->filters;
     }
 
     /**
      * @return void
      */
-    private function loadImageCollection(): void
+    private function loadVisiblePages(): void
     {
-        $this->imageCollection = $this->imageProvider->getCollection($this->offset, $this->limit);
-    }
+        $pages = [];
 
-    /**
-     * @return void
-     */
-    private function loadImagePages(): void
-    {
-        $this->imagePages = $this->imageProvider->getImagePages($this->limit);
+        if ($this->currentPage < 7) {
+            $totalPages = $this->getTotalPages() < 9 ? $this->getTotalPages() : 9;
+            for ($page = 1; $page <= $totalPages; $page++) {
+                $pages[] = $page;
+            }
+        } else {
+            for ($page = $this->currentPage - 2; $page <= $this->currentPage + 7; $page++) {
+                $pages[] = $page;
+            }
+        }
+
+        $this->visiblePages = $pages;
     }
 }

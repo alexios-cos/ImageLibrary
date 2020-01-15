@@ -13,7 +13,17 @@ class HomeController extends Controller
      */
     public function process($params)
     {
-        $viewModel = new HomeView($params['offset'], $params['limit']);
-        $viewModel->renderView();
+        $viewModel = new HomeView(
+            (int)$params['page'] ?? null,
+            (int)$params['currentPerPage'] ?? null,
+            isset($params['newPerPage']) ? (int)($params['newPerPage']) : null,
+            isset($params['filters']) ? $params['filters'] : null
+        );
+
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && \strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+            $viewModel->ajaxSendView();
+        } else {
+            $viewModel->renderView();
+        }
     }
 }

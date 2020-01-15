@@ -36,6 +36,6 @@ function createTable(PDO $connection, string $table, string $query): void
         $connection->exec($query);
         echo "Table \"$table\" was successfully created." . PHP_EOL;
     } catch (\PDOException $exception) {
-        echo "An error occurred while creating table $table: {$exception->getMessage()}";
+        echo "An error occurred while creating table \"$table\": {$exception->getMessage()}";
     }
 }

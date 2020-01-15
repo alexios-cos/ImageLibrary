@@ -14,11 +14,13 @@ class UploadImageController extends Controller
     public function process($params): void
     {
         if (!$_FILES['uploadImage']['name']) {
-            echo 'The image is corrupted please try another one.';
+            echo '<span>The image is corrupted please try another one.</span>';
+            return;
         }
 
         if ($_FILES['uploadImage']['error']) {
-            echo 'The image is corrupted please try another one.';
+            echo '<span>The image is corrupted please try another one.</span>';
+            return;
         }
 
         $filePath = \pathinfo($_FILES['uploadImage']['name']);
@@ -33,10 +35,9 @@ class UploadImageController extends Controller
         $this->redirect('home');
 
         if ($status) {
-            echo 'The image successfully uploaded.';
+            echo '<span>The image successfully uploaded.</span>';
         } else {
-            echo 'Could not upload image. Please try again.';
+            echo '<span>Could not upload image. Please try again.</span>';
         }
-
     }
 }

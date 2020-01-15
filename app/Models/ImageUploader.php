@@ -69,16 +69,16 @@ class ImageUploader
         }
 
         if (!$previewPath) {
+            \unlink($imagePath);
             return false;
         }
 
-        [$width, $height] = \imageresolution($resourceImage);
-        $imageResolution = "{$width}x{$height}";
-        $imageSize = \filesize($imagePath) / 1000;
+        [$imageWidth, $imageHeight] = \imageresolution($resourceImage);
+        $imageSize = (string)\round(\filesize($imagePath) / 1000);
 
         try {
-            $status = $this->storeImageInfo(
-                $origFileName, $imagePath, $previewPath, $imageResolution, (string)$imageSize
+            $this->storeImageInfo(
+                $origFileName, $imagePath, $previewPath, (string)$imageWidth, (string)$imageHeight, $imageSize
             );
         } catch (\Exception $exception) {
             // logging exceptions
@@ -94,7 +94,8 @@ class ImageUploader
      * @param string $origFileName
      * @param string $imagePath
      * @param string $previewPath
-     * @param string $imageResolution
+     * @param string $imageWidth
+     * @param string $imageHeight
      * @param string $imageSize
      * @return bool
      * @throws \Exception
@@ -103,15 +104,17 @@ class ImageUploader
         string $origFileName,
         string $imagePath,
         string $previewPath,
-        string $imageResolution,
+        string $imageWidth,
+        string $imageHeight,
         string $imageSize
     ) {
         $date = new \DateTime('now');
         $attrs = [
             'image_path' => $imagePath,
             'preview_path' => $previewPath,
-            'image_resolution' => $imageResolution,
-            'image_size' => $imageSize,
+            'width' => $imageWidth,
+            'height' => $imageHeight,
+            'size' => $imageSize,
             'views' => 0,
             'created_at' => $date->format('Y.m.d H:i:s')
         ];
