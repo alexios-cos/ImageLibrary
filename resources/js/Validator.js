@@ -66,28 +66,28 @@ Validator = new class {
      * @return boolean
      */
     validateResolutions(filters) {
-        let minWidth = filters.widthRange.minWidth.value;
-        let minHeight = filters.heightRange.minHeight.value;
-        let maxWidth = filters.widthRange.maxWidth.value;
-        let maxHeight = filters.heightRange.maxHeight.value;
+        if (!filters.hasOwnProperty('widthRange') || !filters.hasOwnProperty('heightRange')) {
+            Notifier.flashMessage('Please set resolution properly.', 'warning');
+            return false;
+        }
 
-        if ( minWidth && minHeight ) {
-            if (!maxWidth || !maxHeight) {
-                Notifier.flashMessage('Please set max resolution.', 'warning');
-                return false;
-            }
-        } else {
+        let minWidth = filters.widthRange.hasOwnProperty('minWidth') ? filters.widthRange.minWidth.value : null;
+        let minHeight = filters.heightRange.hasOwnProperty('minHeight') ? filters.heightRange.minHeight.value : null;
+        let maxWidth = filters.widthRange.hasOwnProperty('maxWidth') ? filters.widthRange.maxWidth.value : null;
+        let maxHeight = filters.heightRange.hasOwnProperty('maxHeight') ? filters.heightRange.maxHeight.value : null;
+
+        if (!minWidth || !minHeight) {
             Notifier.flashMessage('Please set min resolution properly.', 'warning');
             return false;
         }
 
-        if ( maxWidth && maxHeight ) {
-            if (!minWidth || !minHeight) {
-                Notifier.flashMessage('Please set min resolution.', 'warning');
-                return false;
-            }
-        } else {
+        if (!maxWidth || !maxHeight) {
             Notifier.flashMessage('Please set max resolution properly.', 'warning');
+            return false;
+        }
+
+        if (!Number(minWidth) || !Number(minHeight) || !Number(maxWidth) || !Number(maxHeight)) {
+            Notifier.flashMessage('Resolution must be the set of numbers (e.g. 1280x720)', 'warning');
             return false;
         }
 

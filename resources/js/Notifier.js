@@ -24,6 +24,7 @@ let Notifier = new class {
         let message = $('#dialog-message');
         message.html( '<span>' + text + '</span>' );
         message.css('background-color', this.types[type]);
+        message.css('border-color', this.types[type]);
         message.css('display', 'flex');
     }
 };
