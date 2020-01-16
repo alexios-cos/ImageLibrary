@@ -50,9 +50,45 @@ body.on( 'change', '#upload-image', function ( e ) {
 } );
 
 body.on( 'click', '.page', function ( e ) {
+    let page = $( this ).attr('data-page');
     DataCollector.collectRequestData();
     let data = DataCollector.getRequestData();
-    let page = $( e.target ).attr('data-page');
+
+    if ( $( this ).hasClass( 'arrow' ) ) {
+        return false;
+    }
+
+    $.ajax( {
+        url: '/home',
+        type: 'POST',
+        data: { page: page, currentPerPage: data.perPage, filters: data.filters },
+        async: true,
+        success: function (response) {
+            $( '#content-container' ).html(response);
+        }
+    } );
+} );
+
+body.on( 'click', '#prev-page', function ( e ) {
+    DataCollector.collectRequestData();
+    let data = DataCollector.getRequestData();
+    let page = Number(data.page) - 1;
+
+    $.ajax( {
+        url: '/home',
+        type: 'POST',
+        data: { page: page, currentPerPage: data.perPage, filters: data.filters },
+        async: true,
+        success: function (response) {
+            $( '#content-container' ).html(response);
+        }
+    } );
+} );
+
+body.on( 'click', '#next-page', function ( e ) {
+    DataCollector.collectRequestData();
+    let data = DataCollector.getRequestData();
+    let page = Number(data.page) + 1;
 
     $.ajax( {
         url: '/home',

@@ -36,6 +36,9 @@ class HomeView extends ViewModel
     private $currentPage = 1;
 
     /** @var int */
+    private $lastPage;
+
+    /** @var int */
     private $currentPerPage = 20;
 
     /** @var array */
@@ -128,6 +131,18 @@ class HomeView extends ViewModel
     /**
      * @return int
      */
+    public function getLastPage(): int
+    {
+        if (!$this->lastPage) {
+            $this->lastPage = $this->totalPages;
+        }
+
+        return $this->lastPage;
+    }
+
+    /**
+     * @return int
+     */
     public function getCurrentPerPage(): int
     {
         return $this->currentPerPage;
@@ -193,12 +208,19 @@ class HomeView extends ViewModel
         $pages = [];
 
         if ($this->currentPage < 7) {
-            $totalPages = $this->getTotalPages() < 9 ? $this->getTotalPages() : 9;
+            $totalPages = $this->totalPages < 9 ? $this->totalPages : 9;
             for ($page = 1; $page <= $totalPages; $page++) {
                 $pages[] = $page;
             }
+        } elseif (($pagesLeft = $this->totalPages - $this->currentPage) < 9) {
+            for ($page = $this->totalPages - 8; $page <= $this->totalPages + $pagesLeft + 1; $page++) {
+                if (\count($pages) === 9) {
+                    break;
+                }
+                $pages[] = $page;
+            }
         } else {
-            for ($page = $this->currentPage - 2; $page <= $this->currentPage + 7; $page++) {
+            for ($page = $this->currentPage - 4; $page <= $this->currentPage + 4; $page++) {
                 $pages[] = $page;
             }
         }

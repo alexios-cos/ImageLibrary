@@ -106,8 +106,8 @@
         <div id="pages">
             <?php if ($pages = $this->getTotalPages()): ?>
                 <?php $currentPage = $this->getCurrentPage() ?>
-                <?php if ($pages > 9): ?>
-                    <div class="page interactive">
+                <?php if ($pages > 9 && 1 !== $currentPage): ?>
+                    <div id="prev-page" class="page arrow interactive">
                         <span><</span>
                     </div>
                 <?php endif; ?>
@@ -116,8 +116,8 @@
                         <span><?php echo $page ?></span>
                     </div>
                 <?php endforeach; ?>
-                <?php if ($pages > 9): ?>
-                    <div class="page interactive">
+                <?php if ($pages > 9 && $this->getLastPage() !== $currentPage): ?>
+                    <div id="next-page" class="page arrow interactive">
                         <span>></span>
                     </div>
                 <?php endif; ?>
